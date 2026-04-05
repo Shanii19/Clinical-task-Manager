@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Tasks from "./pages/Tasks";
 import Departments from "./pages/Departments";
 import Notifications from "./pages/Notifications";
+import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
               <Route path="/tasks" element={<Tasks />} />
               <Route path="/departments" element={<Departments />} />
               <Route path="/notifications" element={<Notifications />} />
+              <Route path="/chat" element={<Chat />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

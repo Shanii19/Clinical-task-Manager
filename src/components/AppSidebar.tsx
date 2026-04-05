@@ -1,4 +1,4 @@
-import { LayoutDashboard, ListTodo, Building2, Bell, User, LogOut } from 'lucide-react';
+import { LayoutDashboard, ListTodo, Building2, Bell, User, LogOut, MessageSquare } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,6 +19,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 const mainItems = [
   { title: 'Dashboard', url: '/', icon: LayoutDashboard },
   { title: 'Tasks', url: '/tasks', icon: ListTodo },
+  { title: 'Chat', url: '/chat', icon: MessageSquare },
   { title: 'Notifications', url: '/notifications', icon: Bell },
 ];
 
