@@ -309,7 +309,26 @@ const Tasks = () => {
 
       {/* Task List */}
       {isLoading ? (
-        <div className="text-center py-12 text-muted-foreground">Loading tasks...</div>
+        <div className="space-y-3">
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i} className="border-border/50">
+              <CardContent className="p-4">
+                <div className="space-y-2">
+                  <div className="h-5 bg-muted rounded animate-pulse w-2/3" />
+                  <div className="h-4 bg-muted rounded animate-pulse w-1/2" />
+                  <div className="flex gap-2">
+                    <div className="h-5 w-20 bg-muted rounded-full animate-pulse" />
+                    <div className="h-5 w-16 bg-muted rounded-full animate-pulse" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : isError ? (
+        <div className="text-center py-12 text-destructive">
+          <p>Failed to load tasks. Please try again.</p>
+        </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">No tasks found</div>
       ) : (
