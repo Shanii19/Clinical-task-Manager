@@ -11,8 +11,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { Plus, Search, MessageSquare, Calendar, ArrowUpDown } from 'lucide-react';
+import { Plus, Search, Calendar, ArrowUpDown, Eye } from 'lucide-react';
 import TaskDetail from '@/components/TaskDetail';
+import { QuickTaskModal } from '@/components/QuickTaskModal';
 import type { Database } from '@/integrations/supabase/types';
 
 type TaskStatus = Database['public']['Enums']['task_status'];
@@ -42,6 +43,7 @@ const Tasks = () => {
   const [filterDueDate, setFilterDueDate] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('created_at');
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
+  const [quickViewId, setQuickViewId] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
 
   // Form state
