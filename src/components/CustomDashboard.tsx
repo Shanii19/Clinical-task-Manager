@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from '@/components/ui/sheet';
 import { Switch } from '@/components/ui/switch';
 import { Settings2, RotateCcw } from 'lucide-react';
 import { AVAILABLE_WIDGETS, useDashboardWidgets, type WidgetId } from '@/hooks/useDashboardWidgets';
