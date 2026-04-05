@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export type WidgetId = 'task-stats' | 'upcoming-tasks' | 'notifications' | 'status-chart' | 'recent-activity' | 'deadlines';
+export type WidgetId = 'upcoming-tasks' | 'notifications' | 'status-chart' | 'recent-activity' | 'deadlines';
 
 export interface WidgetConfig {
   id: WidgetId;
@@ -9,7 +9,6 @@ export interface WidgetConfig {
 }
 
 export const AVAILABLE_WIDGETS: WidgetConfig[] = [
-  { id: 'task-stats', title: 'Task Stats', description: 'Overview cards showing task counts by status' },
   { id: 'upcoming-tasks', title: 'Upcoming Tasks', description: 'Tasks due soon sorted by deadline' },
   { id: 'notifications', title: 'Notifications', description: 'Recent unread notifications' },
   { id: 'status-chart', title: 'Status Chart', description: 'Pie chart of task status distribution' },
@@ -17,14 +16,19 @@ export const AVAILABLE_WIDGETS: WidgetConfig[] = [
   { id: 'deadlines', title: 'Deadline Calendar', description: 'Tasks grouped by due date' },
 ];
 
-const DEFAULT_WIDGETS: WidgetId[] = ['task-stats', 'upcoming-tasks', 'notifications'];
-const STORAGE_KEY = 'dashboard-widgets';
+const DEFAULT_WIDGETS: WidgetId[] = ['upcoming-tasks', 'notifications'];
+const STORAGE_KEY = 'dashboard-widgets-v2';
 
 export function useDashboardWidgets() {
   const [activeWidgets, setActiveWidgets] = useState<WidgetId[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : DEFAULT_WIDGETS;
+      if (saved) {
+        const parsed = JSON.parse(saved) as string[];
+        // Filter out old 'task-stats' if present
+        return parsed.filter((w) => w !== 'task-stats') as WidgetId[];
+      }
+      return DEFAULT_WIDGETS;
     } catch {
       return DEFAULT_WIDGETS;
     }
