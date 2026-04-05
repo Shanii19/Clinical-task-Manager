@@ -45,7 +45,7 @@ export function AppSidebar() {
           {!collapsed && (
             <div className="flex items-center gap-2 mb-1">
               <div className="w-8 h-8 rounded-lg bg-sidebar-primary flex items-center justify-center">
-                <span className="text-sidebar-primary-foreground font-bold text-sm">C</span>
+                <HeartPulse className="h-4 w-4 text-sidebar-primary-foreground" />
               </div>
               <div>
                 <h2 className="font-semibold text-sidebar-foreground text-sm leading-tight">Clinic Task</h2>
