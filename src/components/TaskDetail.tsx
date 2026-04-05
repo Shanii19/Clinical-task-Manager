@@ -125,10 +125,11 @@ const TaskDetail = ({ taskId, onBack }: Props) => {
         )}
       </div>
 
-      {task.description && (
+      {(task.description || task.patient_name) && (
         <Card className="border-border/50">
           <CardContent className="p-4">
-            <p className="text-sm text-foreground whitespace-pre-wrap">{task.description}</p>
+            {task.description && <p className="text-sm text-foreground whitespace-pre-wrap">{task.description}</p>}
+            {task.patient_name && <p className="text-sm text-muted-foreground mt-2">Patient: <span className="font-medium text-foreground">{task.patient_name}</span></p>}
           </CardContent>
         </Card>
       )}

@@ -325,6 +325,9 @@ const Tasks = () => {
                       {task.description && (
                         <p className="text-sm text-muted-foreground truncate mb-2">{task.description}</p>
                       )}
+                      {task.patient_name && (
+                        <p className="text-xs text-muted-foreground mb-2">Patient: {task.patient_name}</p>
+                      )}
                       <div className="flex flex-wrap items-center gap-2 text-xs">
                         <Badge className={`${statusColors[task.status]} text-[11px]`}>
                           {task.status.replace('_', ' ')}
