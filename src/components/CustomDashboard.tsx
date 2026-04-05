@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from '@/components/ui/sheet';
 import { Switch } from '@/components/ui/switch';
 import { Settings2, RotateCcw } from 'lucide-react';
 import { AVAILABLE_WIDGETS, useDashboardWidgets, type WidgetId } from '@/hooks/useDashboardWidgets';
@@ -26,6 +26,7 @@ export function CustomDashboard() {
           <SheetContent>
             <SheetHeader>
               <SheetTitle>Customize Dashboard</SheetTitle>
+              <SheetDescription>Toggle widgets to show or hide them.</SheetDescription>
             </SheetHeader>
             <div className="mt-6 space-y-4">
               <p className="text-sm text-muted-foreground">Toggle widgets to show or hide them on your dashboard.</p>

@@ -173,10 +173,12 @@ const Chat = () => {
     );
   };
 
+  const isMobileView = typeof window !== 'undefined' && window.innerWidth < 768;
+
   return (
-    <div className="flex h-[calc(100vh-8rem)] gap-4">
+    <div className="flex flex-col md:flex-row h-[calc(100vh-8rem)] gap-4">
       {/* Sidebar: Conversations */}
-      <Card className="w-72 shrink-0 border-border/50 flex flex-col">
+      <Card className={`w-full md:w-72 shrink-0 border-border/50 flex flex-col ${selectedUser ? 'hidden md:flex' : 'flex'}`}>
         <CardHeader className="pb-2 px-3 pt-3">
           <CardTitle className="text-base flex items-center gap-2">
             <MessageSquare className="h-4 w-4" /> Messages
@@ -227,11 +229,14 @@ const Chat = () => {
       </Card>
 
       {/* Chat Area */}
-      <Card className="flex-1 border-border/50 flex flex-col">
+      <Card className={`flex-1 border-border/50 flex flex-col ${!selectedUser ? 'hidden md:flex' : 'flex'}`}>
         {selectedUser ? (
           <>
             {/* Header */}
             <div className="flex items-center gap-3 px-4 py-3 border-b">
+              <button onClick={() => setSelectedUser(null)} className="md:hidden text-muted-foreground hover:text-foreground p-1 rounded">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
               <Avatar className="h-8 w-8">
                 <AvatarFallback className="text-xs bg-primary/10 text-primary">
                   {initials(selectedProfile?.full_name || '')}

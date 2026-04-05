@@ -11,14 +11,15 @@ const Notifications = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const { data: notifications = [] } = useQuery({
+  const { data: notifications = [], isLoading, isError } = useQuery({
     queryKey: ['notifications', user?.id],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('notifications')
         .select('*')
         .eq('user_id', user!.id)
         .order('created_at', { ascending: false });
+      if (error) throw error;
       return data ?? [];
     },
     enabled: !!user,
@@ -62,7 +63,25 @@ const Notifications = () => {
         )}
       </div>
 
-      {notifications.length === 0 ? (
+      {isLoading ? (
+        <div className="space-y-2">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="border-border/50">
+              <CardContent className="p-4 flex items-start gap-3">
+                <div className="w-2 h-2 rounded-full mt-2 bg-muted animate-pulse" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-muted rounded animate-pulse w-1/3" />
+                  <div className="h-3 bg-muted rounded animate-pulse w-2/3" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : isError ? (
+        <div className="text-center py-16 text-destructive">
+          <p>Failed to load notifications. Please try again.</p>
+        </div>
+      ) : notifications.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
           <Bell className="h-12 w-12 mx-auto mb-3 opacity-30" />
           <p>No notifications yet</p>
