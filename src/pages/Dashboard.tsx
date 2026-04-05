@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ListTodo, Clock, CheckCircle2, AlertTriangle, Users, Building2 } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, ResponsiveContainer, CartesianGrid } from 'recharts';
+import MemberDashboard from '@/components/MemberDashboard';
 
 const STATUS_COLORS = ['hsl(210, 80%, 45%)', 'hsl(38, 92%, 50%)', 'hsl(152, 60%, 42%)'];
 const PRIORITY_COLORS: Record<string, string> = {
@@ -16,6 +17,11 @@ const PRIORITY_COLORS: Record<string, string> = {
 
 const Dashboard = () => {
   const { user, role, profile } = useAuth();
+
+  // Members see their own dashboard
+  if (role && role !== 'admin') {
+    return <MemberDashboard />;
+  }
 
   const { data: tasks = [] } = useQuery({
     queryKey: ['dashboard-tasks'],
