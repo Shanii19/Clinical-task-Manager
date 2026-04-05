@@ -345,7 +345,7 @@ const Tasks = () => {
                       <Select
                         value={task.status}
                         onValueChange={(v) => {
-                          supabase.from('tasks').update({ status: v }).eq('id', task.id).then(({ error }) => {
+                          supabase.from('tasks').update({ status: v as TaskStatus }).eq('id', task.id).then(({ error }) => {
                             if (error) toast.error(error.message);
                             else { toast.success('Status updated'); queryClient.invalidateQueries({ queryKey: ['tasks'] }); }
                           });
@@ -369,7 +369,7 @@ const Tasks = () => {
                       <Select
                         value={task.priority}
                         onValueChange={(v) => {
-                          supabase.from('tasks').update({ priority: v }).eq('id', task.id).then(({ error }) => {
+                          supabase.from('tasks').update({ priority: v as TaskPriority }).eq('id', task.id).then(({ error }) => {
                             if (error) toast.error(error.message);
                             else { toast.success('Priority updated'); queryClient.invalidateQueries({ queryKey: ['tasks'] }); }
                           });
