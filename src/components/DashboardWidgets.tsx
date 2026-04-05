@@ -3,19 +3,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ListTodo, Clock, CheckCircle2, AlertTriangle, Calendar, Bell, X, MessageSquare } from 'lucide-react';
-import { PieChart, Pie, Cell } from 'recharts';
+import { ListTodo, Clock, CheckCircle2, AlertTriangle, Calendar, Bell, X, MessageSquare, TrendingUp } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
 import type { WidgetId } from '@/hooks/useDashboardWidgets';
 
-const STATUS_COLORS = ['hsl(210, 80%, 45%)', 'hsl(38, 92%, 50%)', 'hsl(152, 60%, 42%)'];
-
-const statusColors: Record<string, string> = {
-  pending: 'bg-muted text-muted-foreground',
-  in_progress: 'bg-warning/15 text-warning border border-warning/30',
-  completed: 'bg-success/15 text-success border border-success/30',
-};
+const STATUS_COLORS = ['hsl(210, 80%, 55%)', 'hsl(38, 92%, 50%)', 'hsl(152, 60%, 42%)'];
 
 const priorityColors: Record<string, string> = {
   urgent: 'bg-destructive text-destructive-foreground',
@@ -31,10 +25,13 @@ interface WidgetProps {
 
 function WidgetWrapper({ title, icon: Icon, onRemove, children }: WidgetProps & { title: string; icon: any; children: React.ReactNode }) {
   return (
-    <Card className="border-border/50">
+    <Card className="border-border/40 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
       <CardHeader className="pb-2 flex-row items-center justify-between space-y-0">
-        <CardTitle className="text-base flex items-center gap-2">
-          <Icon className="h-4 w-4 text-primary" /> {title}
+        <CardTitle className="text-sm font-semibold flex items-center gap-2">
+          <div className="p-1.5 rounded-lg bg-primary/10">
+            <Icon className="h-3.5 w-3.5 text-primary" />
+          </div>
+          {title}
         </CardTitle>
         <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-destructive" onClick={onRemove}>
           <X className="h-3.5 w-3.5" />
@@ -45,7 +42,8 @@ function WidgetWrapper({ title, icon: Icon, onRemove, children }: WidgetProps & 
   );
 }
 
-export function TaskStatsWidget({ onRemove }: WidgetProps) {
+// Task Stats - always shown, no remove button
+export function TaskStatsWidget() {
   const { user, role } = useAuth();
 
   const { data: tasks = [] } = useQuery({
@@ -66,27 +64,47 @@ export function TaskStatsWidget({ onRemove }: WidgetProps) {
   const inProgress = tasks.filter((t: any) => t.status === 'in_progress').length;
   const completed = tasks.filter((t: any) => t.status === 'completed').length;
   const overdue = tasks.filter((t: any) => t.due_date && new Date(t.due_date) < now && t.status !== 'completed').length;
+  const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
 
   const cards = [
-    { label: 'Total', value: total, icon: ListTodo, color: 'text-primary' },
-    { label: 'Pending', value: pending, icon: Clock, color: 'text-warning' },
-    { label: 'In Progress', value: inProgress, icon: ListTodo, color: 'text-primary' },
-    { label: 'Completed', value: completed, icon: CheckCircle2, color: 'text-success' },
-    { label: 'Overdue', value: overdue, icon: AlertTriangle, color: 'text-destructive' },
+    { label: 'Total', value: total, icon: ListTodo, gradient: 'from-primary/20 to-primary/5', iconBg: 'bg-primary/15', iconColor: 'text-primary', borderColor: 'border-primary/20' },
+    { label: 'Pending', value: pending, icon: Clock, gradient: 'from-warning/20 to-warning/5', iconBg: 'bg-warning/15', iconColor: 'text-warning', borderColor: 'border-warning/20' },
+    { label: 'In Progress', value: inProgress, icon: TrendingUp, gradient: 'from-accent/20 to-accent/5', iconBg: 'bg-accent/15', iconColor: 'text-accent', borderColor: 'border-accent/20' },
+    { label: 'Completed', value: completed, icon: CheckCircle2, gradient: 'from-success/20 to-success/5', iconBg: 'bg-success/15', iconColor: 'text-success', borderColor: 'border-success/20' },
+    { label: 'Overdue', value: overdue, icon: AlertTriangle, gradient: 'from-destructive/20 to-destructive/5', iconBg: 'bg-destructive/15', iconColor: 'text-destructive', borderColor: 'border-destructive/20' },
   ];
 
   return (
-    <WidgetWrapper title="Task Stats" icon={ListTodo} onRemove={onRemove}>
-      <div className="grid grid-cols-5 gap-3">
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
         {cards.map((c) => (
-          <div key={c.label} className="text-center">
-            <c.icon className={`h-4 w-4 mx-auto mb-1 ${c.color}`} />
-            <p className="text-xl font-bold text-foreground">{c.value}</p>
-            <p className="text-[10px] text-muted-foreground">{c.label}</p>
-          </div>
+          <Card key={c.label} className={`border ${c.borderColor} bg-gradient-to-br ${c.gradient} shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5`}>
+            <CardContent className="p-4 flex flex-col items-center gap-2">
+              <div className={`p-2 rounded-xl ${c.iconBg}`}>
+                <c.icon className={`h-5 w-5 ${c.iconColor}`} />
+              </div>
+              <p className="text-2xl font-bold text-foreground">{c.value}</p>
+              <p className="text-xs font-medium text-muted-foreground">{c.label}</p>
+            </CardContent>
+          </Card>
         ))}
       </div>
-    </WidgetWrapper>
+      {/* Completion bar */}
+      <Card className="border-border/40 shadow-sm">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-foreground">Completion Rate</span>
+            <span className="text-sm font-bold text-primary">{completionRate}%</span>
+          </div>
+          <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-700 ease-out"
+              style={{ width: `${completionRate}%` }}
+            />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
@@ -114,7 +132,7 @@ export function UpcomingTasksWidget({ onRemove }: WidgetProps) {
     const diff = Math.ceil((new Date(date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
     if (diff <= 0) return 'Today';
     if (diff === 1) return 'Tomorrow';
-    return `${diff} days`;
+    return `${diff}d`;
   };
 
   return (
@@ -122,17 +140,17 @@ export function UpcomingTasksWidget({ onRemove }: WidgetProps) {
       {tasks.length > 0 ? (
         <div className="space-y-2">
           {tasks.map((t: any) => (
-            <div key={t.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/40">
+            <div key={t.id} className="flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-muted/60 to-muted/20 hover:from-muted/80 hover:to-muted/40 transition-colors">
               <div className="flex items-center gap-2 min-w-0">
                 <Badge className={`${priorityColors[t.priority]} text-[10px] shrink-0`}>{t.priority}</Badge>
-                <span className="text-sm truncate">{t.title}</span>
+                <span className="text-sm truncate font-medium">{t.title}</span>
               </div>
-              <span className="text-xs text-muted-foreground shrink-0 ml-2">{daysUntil(t.due_date)}</span>
+              <span className="text-xs font-semibold text-primary shrink-0 ml-2 bg-primary/10 px-2 py-0.5 rounded-full">{daysUntil(t.due_date)}</span>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground text-center py-4">No upcoming tasks</p>
+        <p className="text-sm text-muted-foreground text-center py-6">No upcoming tasks 🎯</p>
       )}
     </WidgetWrapper>
   );
@@ -156,13 +174,19 @@ export function NotificationsWidget({ onRemove }: WidgetProps) {
     enabled: !!user,
   });
 
+  const typeColors: Record<string, string> = {
+    task: 'bg-primary',
+    leave: 'bg-warning',
+    chat: 'bg-accent',
+  };
+
   return (
     <WidgetWrapper title="Notifications" icon={Bell} onRemove={onRemove}>
       {notifications.length > 0 ? (
         <div className="space-y-2">
           {notifications.map((n: any) => (
-            <div key={n.id} className="flex items-start gap-2 p-2 rounded-lg bg-muted/40">
-              <div className="w-2 h-2 rounded-full bg-primary mt-1.5 shrink-0" />
+            <div key={n.id} className="flex items-start gap-3 p-2.5 rounded-xl bg-gradient-to-r from-muted/60 to-muted/20 hover:from-muted/80 hover:to-muted/40 transition-colors">
+              <div className={`w-2 h-2 rounded-full ${typeColors[n.type] || 'bg-primary'} mt-1.5 shrink-0 ring-2 ring-offset-1 ring-offset-card ${typeColors[n.type] || 'ring-primary'}/30`} />
               <div className="min-w-0">
                 <p className="text-sm font-medium truncate">{n.title}</p>
                 <p className="text-xs text-muted-foreground truncate">{n.message}</p>
@@ -171,7 +195,7 @@ export function NotificationsWidget({ onRemove }: WidgetProps) {
           ))}
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground text-center py-4">All caught up! 🎉</p>
+        <p className="text-sm text-muted-foreground text-center py-6">All caught up! 🎉</p>
       )}
     </WidgetWrapper>
   );
@@ -209,7 +233,7 @@ export function StatusChartWidget({ onRemove }: WidgetProps) {
       {statusData.length > 0 ? (
         <ChartContainer config={chartConfig} className="h-[180px]">
           <PieChart>
-            <Pie data={statusData} cx="50%" cy="50%" innerRadius={40} outerRadius={70} dataKey="value" nameKey="name"
+            <Pie data={statusData} cx="50%" cy="50%" innerRadius={45} outerRadius={75} dataKey="value" nameKey="name" strokeWidth={2} stroke="hsl(var(--card))"
               label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false}>
               {statusData.map((_, i) => <Cell key={i} fill={STATUS_COLORS[i]} />)}
             </Pie>
@@ -217,7 +241,7 @@ export function StatusChartWidget({ onRemove }: WidgetProps) {
           </PieChart>
         </ChartContainer>
       ) : (
-        <p className="text-sm text-muted-foreground text-center py-4">No tasks yet</p>
+        <p className="text-sm text-muted-foreground text-center py-6">No tasks yet</p>
       )}
     </WidgetWrapper>
   );
@@ -241,23 +265,23 @@ export function RecentActivityWidget({ onRemove }: WidgetProps) {
       {comments.length > 0 ? (
         <div className="space-y-2">
           {comments.map((c: any) => (
-            <div key={c.id} className="flex items-start gap-2 p-2 rounded-lg bg-muted/40">
-              <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                <span className="text-[10px] font-medium text-primary">
+            <div key={c.id} className="flex items-start gap-3 p-2.5 rounded-xl bg-gradient-to-r from-muted/60 to-muted/20 hover:from-muted/80 hover:to-muted/40 transition-colors">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center shrink-0">
+                <span className="text-[10px] font-bold text-primary">
                   {(c.profiles?.full_name || 'U')[0].toUpperCase()}
                 </span>
               </div>
               <div className="min-w-0">
                 <p className="text-xs text-muted-foreground">
-                  <span className="font-medium text-foreground">{c.profiles?.full_name || 'User'}</span> on {c.tasks?.title || 'a task'}
+                  <span className="font-semibold text-foreground">{c.profiles?.full_name || 'User'}</span> on {c.tasks?.title || 'a task'}
                 </p>
-                <p className="text-xs text-muted-foreground truncate">{c.content}</p>
+                <p className="text-xs text-muted-foreground truncate mt-0.5">{c.content}</p>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground text-center py-4">No recent activity</p>
+        <p className="text-sm text-muted-foreground text-center py-6">No recent activity</p>
       )}
     </WidgetWrapper>
   );
@@ -293,13 +317,16 @@ export function DeadlinesWidget({ onRemove }: WidgetProps) {
     return d > now && d.toDateString() !== now.toDateString();
   });
 
-  const Section = ({ label, items, color }: { label: string; items: any[]; color: string }) =>
+  const Section = ({ label, items, color, dotColor }: { label: string; items: any[]; color: string; dotColor: string }) =>
     items.length > 0 ? (
       <div>
-        <p className={`text-xs font-semibold ${color} mb-1`}>{label} ({items.length})</p>
+        <p className={`text-xs font-bold uppercase tracking-wider ${color} mb-2`}>{label} ({items.length})</p>
         {items.map((t: any) => (
-          <div key={t.id} className="flex items-center justify-between py-1 text-sm">
-            <span className="truncate">{t.title}</span>
+          <div key={t.id} className="flex items-center justify-between py-1.5 text-sm">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className={`w-1.5 h-1.5 rounded-full ${dotColor} shrink-0`} />
+              <span className="truncate font-medium">{t.title}</span>
+            </div>
             <span className="text-xs text-muted-foreground shrink-0 ml-2">{new Date(t.due_date).toLocaleDateString()}</span>
           </div>
         ))}
@@ -309,20 +336,19 @@ export function DeadlinesWidget({ onRemove }: WidgetProps) {
   return (
     <WidgetWrapper title="Deadline Calendar" icon={Calendar} onRemove={onRemove}>
       {tasks.length > 0 ? (
-        <div className="space-y-3">
-          <Section label="Overdue" items={overdue} color="text-destructive" />
-          <Section label="Today" items={today} color="text-warning" />
-          <Section label="Upcoming" items={upcoming} color="text-primary" />
+        <div className="space-y-4">
+          <Section label="Overdue" items={overdue} color="text-destructive" dotColor="bg-destructive" />
+          <Section label="Today" items={today} color="text-warning" dotColor="bg-warning" />
+          <Section label="Upcoming" items={upcoming} color="text-primary" dotColor="bg-primary" />
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground text-center py-4">No deadlines</p>
+        <p className="text-sm text-muted-foreground text-center py-6">No deadlines</p>
       )}
     </WidgetWrapper>
   );
 }
 
 export const WIDGET_COMPONENTS: Record<WidgetId, React.FC<WidgetProps>> = {
-  'task-stats': TaskStatsWidget,
   'upcoming-tasks': UpcomingTasksWidget,
   'notifications': NotificationsWidget,
   'status-chart': StatusChartWidget,
