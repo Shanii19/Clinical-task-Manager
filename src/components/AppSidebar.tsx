@@ -48,7 +48,7 @@ export function AppSidebar() {
                 <HeartPulse className="h-4 w-4 text-sidebar-primary-foreground" />
               </div>
               <div>
-                <h2 className="font-semibold text-sidebar-foreground text-sm leading-tight">Clinic Task</h2>
+                <h2 className="font-semibold text-sidebar-foreground text-sm leading-tight">Clinical Task</h2>
                 <p className="text-[11px] text-sidebar-foreground/60">Manager</p>
               </div>
             </div>
