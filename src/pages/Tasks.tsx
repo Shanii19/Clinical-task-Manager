@@ -242,7 +242,6 @@ const Tasks = () => {
               </form>
             </DialogContent>
           </Dialog>
-        )}
       </div>
 
       {/* Filters */}
