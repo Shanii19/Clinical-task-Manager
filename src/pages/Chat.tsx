@@ -173,10 +173,12 @@ const Chat = () => {
     );
   };
 
+  const isMobileView = typeof window !== 'undefined' && window.innerWidth < 768;
+
   return (
-    <div className="flex h-[calc(100vh-8rem)] gap-4">
+    <div className="flex flex-col md:flex-row h-[calc(100vh-8rem)] gap-4">
       {/* Sidebar: Conversations */}
-      <Card className="w-72 shrink-0 border-border/50 flex flex-col">
+      <Card className={`w-full md:w-72 shrink-0 border-border/50 flex flex-col ${selectedUser ? 'hidden md:flex' : 'flex'}`}>
         <CardHeader className="pb-2 px-3 pt-3">
           <CardTitle className="text-base flex items-center gap-2">
             <MessageSquare className="h-4 w-4" /> Messages
@@ -227,7 +229,7 @@ const Chat = () => {
       </Card>
 
       {/* Chat Area */}
-      <Card className="flex-1 border-border/50 flex flex-col">
+      <Card className={`flex-1 border-border/50 flex flex-col ${!selectedUser ? 'hidden md:flex' : 'flex'}`}>
         {selectedUser ? (
           <>
             {/* Header */}
