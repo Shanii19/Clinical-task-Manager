@@ -162,8 +162,7 @@ const Tasks = () => {
           <h1 className="text-2xl font-bold text-foreground">Tasks</h1>
           <p className="text-muted-foreground text-sm">{filtered.length} tasks</p>
         </div>
-        {role === 'admin' && (
-          <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
             <DialogTrigger asChild>
               <Button><Plus className="h-4 w-4 mr-1" /> New Task</Button>
             </DialogTrigger>
