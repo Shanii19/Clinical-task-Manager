@@ -1,4 +1,4 @@
-import { LayoutDashboard, ListTodo, Building2, Bell, User, LogOut, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, ListTodo, Building2, Bell, User, LogOut, MessageSquare, HeartPulse } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
