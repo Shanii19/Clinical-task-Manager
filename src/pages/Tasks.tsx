@@ -177,6 +177,10 @@ const Tasks = () => {
                   <Label>Description</Label>
                   <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Details..." rows={3} />
                 </div>
+                <div className="space-y-2">
+                  <Label>Patient Name</Label>
+                  <Input value={patientName} onChange={(e) => setPatientName(e.target.value)} placeholder="Patient name (optional)" />
+                </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Priority</Label>
@@ -273,12 +277,29 @@ const Tasks = () => {
             ))}
           </SelectContent>
         </Select>
+        <Select value={filterEmployee} onValueChange={setFilterEmployee}>
+          <SelectTrigger className="w-[160px]"><SelectValue placeholder="Employee" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Employees</SelectItem>
+            {members.map((m: any) => (
+              <SelectItem key={m.id} value={m.id}>{m.full_name || 'Unnamed'}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Input
+          type="date"
+          value={filterDueDate}
+          onChange={(e) => setFilterDueDate(e.target.value)}
+          className="w-[160px]"
+          placeholder="Due date"
+        />
         <Select value={sortBy} onValueChange={setSortBy}>
           <SelectTrigger className="w-[140px]"><ArrowUpDown className="h-3 w-3 mr-1" /><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="created_at">Newest</SelectItem>
             <SelectItem value="due_date">Due Date</SelectItem>
             <SelectItem value="priority">Priority</SelectItem>
+            <SelectItem value="status">Status</SelectItem>
           </SelectContent>
         </Select>
       </div>
