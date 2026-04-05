@@ -38,6 +38,8 @@ const Tasks = () => {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterPriority, setFilterPriority] = useState<string>('all');
   const [filterDept, setFilterDept] = useState<string>('all');
+  const [filterEmployee, setFilterEmployee] = useState<string>('all');
+  const [filterDueDate, setFilterDueDate] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('created_at');
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
@@ -45,6 +47,7 @@ const Tasks = () => {
   // Form state
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [patientName, setPatientName] = useState('');
   const [status, setStatus] = useState<TaskStatus>('pending');
   const [priority, setPriority] = useState<TaskPriority>('normal');
   const [deptId, setDeptId] = useState('');
@@ -83,6 +86,7 @@ const Tasks = () => {
       const { error } = await supabase.from('tasks').insert({
         title,
         description: description || null,
+        patient_name: patientName || null,
         status,
         priority,
         department_id: deptId || null,
@@ -104,6 +108,7 @@ const Tasks = () => {
   const resetForm = () => {
     setTitle('');
     setDescription('');
+    setPatientName('');
     setStatus('pending');
     setPriority('normal');
     setDeptId('');
@@ -117,6 +122,12 @@ const Tasks = () => {
     if (filterStatus !== 'all' && t.status !== filterStatus) return false;
     if (filterPriority !== 'all' && t.priority !== filterPriority) return false;
     if (filterDept !== 'all' && t.department_id !== filterDept) return false;
+    if (filterEmployee !== 'all' && t.assigned_to !== filterEmployee) return false;
+    if (filterDueDate) {
+      if (!t.due_date) return false;
+      const taskDate = new Date(t.due_date).toISOString().slice(0, 10);
+      if (taskDate !== filterDueDate) return false;
+    }
     return true;
   });
 
@@ -127,8 +138,12 @@ const Tasks = () => {
       return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
     }
     if (sortBy === 'priority') {
-      const order = { urgent: 0, high: 1, normal: 2, low: 3 };
-      return (order[a.priority as keyof typeof order] ?? 2) - (order[b.priority as keyof typeof order] ?? 2);
+      const order: Record<string, number> = { urgent: 0, high: 1, normal: 2, medium: 3, low: 4 };
+      return (order[a.priority] ?? 2) - (order[b.priority] ?? 2);
+    }
+    if (sortBy === 'status') {
+      const order: Record<string, number> = { pending: 0, in_progress: 1, completed: 2 };
+      return (order[a.status] ?? 0) - (order[b.status] ?? 0);
     }
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
@@ -161,6 +176,10 @@ const Tasks = () => {
                 <div className="space-y-2">
                   <Label>Description</Label>
                   <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Details..." rows={3} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Patient Name</Label>
+                  <Input value={patientName} onChange={(e) => setPatientName(e.target.value)} placeholder="Patient name (optional)" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -258,12 +277,29 @@ const Tasks = () => {
             ))}
           </SelectContent>
         </Select>
+        <Select value={filterEmployee} onValueChange={setFilterEmployee}>
+          <SelectTrigger className="w-[160px]"><SelectValue placeholder="Employee" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Employees</SelectItem>
+            {members.map((m: any) => (
+              <SelectItem key={m.id} value={m.id}>{m.full_name || 'Unnamed'}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Input
+          type="date"
+          value={filterDueDate}
+          onChange={(e) => setFilterDueDate(e.target.value)}
+          className="w-[160px]"
+          placeholder="Due date"
+        />
         <Select value={sortBy} onValueChange={setSortBy}>
           <SelectTrigger className="w-[140px]"><ArrowUpDown className="h-3 w-3 mr-1" /><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="created_at">Newest</SelectItem>
             <SelectItem value="due_date">Due Date</SelectItem>
             <SelectItem value="priority">Priority</SelectItem>
+            <SelectItem value="status">Status</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -288,6 +324,9 @@ const Tasks = () => {
                       </div>
                       {task.description && (
                         <p className="text-sm text-muted-foreground truncate mb-2">{task.description}</p>
+                      )}
+                      {task.patient_name && (
+                        <p className="text-xs text-muted-foreground mb-2">Patient: {task.patient_name}</p>
                       )}
                       <div className="flex flex-wrap items-center gap-2 text-xs">
                         <Badge className={`${statusColors[task.status]} text-[11px]`}>
