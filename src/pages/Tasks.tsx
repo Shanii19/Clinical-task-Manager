@@ -56,13 +56,14 @@ const Tasks = () => {
   const [assignedTo, setAssignedTo] = useState('');
   const [dueDate, setDueDate] = useState('');
 
-  const { data: tasks = [], isLoading } = useQuery({
+  const { data: tasks = [], isLoading, isError } = useQuery({
     queryKey: ['tasks'],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('tasks')
         .select('*, departments(name, color), profiles!tasks_assigned_to_fkey(full_name)')
         .order('created_at', { ascending: false });
+      if (error) throw error;
       return data ?? [];
     },
   });
