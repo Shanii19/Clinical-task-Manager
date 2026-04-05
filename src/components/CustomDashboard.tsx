@@ -26,6 +26,7 @@ export function CustomDashboard() {
           <SheetContent>
             <SheetHeader>
               <SheetTitle>Customize Dashboard</SheetTitle>
+              <SheetDescription>Toggle widgets to show or hide them.</SheetDescription>
             </SheetHeader>
             <div className="mt-6 space-y-4">
               <p className="text-sm text-muted-foreground">Toggle widgets to show or hide them on your dashboard.</p>
