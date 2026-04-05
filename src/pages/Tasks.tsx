@@ -315,11 +315,12 @@ const Tasks = () => {
         <div className="space-y-3">
           {filtered.map((task: any) => {
             const isOverdue = task.due_date && new Date(task.due_date) < new Date() && task.status !== 'completed';
+            const canEdit = role === 'admin' || task.assigned_to === user?.id;
             return (
-              <Card key={task.id} className="border-border/50 hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedTask(task.id)}>
+              <Card key={task.id} className="border-border/50 hover:shadow-md transition-shadow">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0 flex-1">
+                    <div className="min-w-0 flex-1 cursor-pointer" onClick={() => setSelectedTask(task.id)}>
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-medium text-foreground truncate">{task.title}</h3>
                         {isOverdue && <Badge variant="destructive" className="text-[10px] px-1.5 py-0">Overdue</Badge>}
@@ -330,31 +331,80 @@ const Tasks = () => {
                       {task.patient_name && (
                         <p className="text-xs text-muted-foreground mb-2">Patient: {task.patient_name}</p>
                       )}
-                      <div className="flex flex-wrap items-center gap-2 text-xs">
-                        <Badge className={`${statusColors[task.status]} text-[11px]`}>
-                          {task.status.replace('_', ' ')}
-                        </Badge>
-                        <Badge className={`${priorityColors[task.priority]} text-[11px]`}>
-                          {task.priority}
-                        </Badge>
-                        {task.departments && (
-                          <span className="flex items-center gap-1 text-muted-foreground">
-                            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: task.departments.color }} />
-                            {task.departments.name}
-                          </span>
-                        )}
-                        {task.profiles?.full_name && (
-                          <span className="text-muted-foreground">→ {task.profiles.full_name}</span>
-                        )}
-                        {task.due_date && (
-                          <span className="flex items-center gap-1 text-muted-foreground">
-                            <Calendar className="h-3 w-3" />
-                            {new Date(task.due_date).toLocaleDateString()}
-                          </span>
-                        )}
-                      </div>
                     </div>
-                    <MessageSquare className="h-4 w-4 text-muted-foreground/50 shrink-0 mt-1" />
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setQuickViewId(task.id); }}
+                      className="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-accent shrink-0"
+                      title="Quick view"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 text-xs mt-2">
+                    {canEdit ? (
+                      <Select
+                        value={task.status}
+                        onValueChange={(v) => {
+                          supabase.from('tasks').update({ status: v }).eq('id', task.id).then(({ error }) => {
+                            if (error) toast.error(error.message);
+                            else { toast.success('Status updated'); queryClient.invalidateQueries({ queryKey: ['tasks'] }); }
+                          });
+                        }}
+                      >
+                        <SelectTrigger className="h-6 w-[110px] text-[11px] px-2" onClick={(e) => e.stopPropagation()}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="in_progress">In Progress</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Badge className={`${statusColors[task.status]} text-[11px]`}>
+                        {task.status.replace('_', ' ')}
+                      </Badge>
+                    )}
+                    {role === 'admin' ? (
+                      <Select
+                        value={task.priority}
+                        onValueChange={(v) => {
+                          supabase.from('tasks').update({ priority: v }).eq('id', task.id).then(({ error }) => {
+                            if (error) toast.error(error.message);
+                            else { toast.success('Priority updated'); queryClient.invalidateQueries({ queryKey: ['tasks'] }); }
+                          });
+                        }}
+                      >
+                        <SelectTrigger className="h-6 w-[90px] text-[11px] px-2" onClick={(e) => e.stopPropagation()}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="urgent">Urgent</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                          <SelectItem value="normal">Normal</SelectItem>
+                          <SelectItem value="low">Low</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Badge className={`${priorityColors[task.priority]} text-[11px]`}>
+                        {task.priority}
+                      </Badge>
+                    )}
+                    {task.departments && (
+                      <span className="flex items-center gap-1 text-muted-foreground">
+                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: task.departments.color }} />
+                        {task.departments.name}
+                      </span>
+                    )}
+                    {task.profiles?.full_name && (
+                      <span className="text-muted-foreground">→ {task.profiles.full_name}</span>
+                    )}
+                    {task.due_date && (
+                      <span className="flex items-center gap-1 text-muted-foreground">
+                        <Calendar className="h-3 w-3" />
+                        {new Date(task.due_date).toLocaleDateString()}
+                      </span>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -362,6 +412,8 @@ const Tasks = () => {
           })}
         </div>
       )}
+
+      <QuickTaskModal taskId={quickViewId} onClose={() => setQuickViewId(null)} />
     </div>
   );
 };
