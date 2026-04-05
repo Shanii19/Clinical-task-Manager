@@ -66,11 +66,17 @@ const Dashboard = () => {
     { name: 'Completed', value: completed },
   ].filter((d) => d.value > 0);
 
-  const deptData = departments.map((d: any) => ({
-    name: d.name,
-    tasks: tasks.filter((t: any) => t.department_id === d.id).length,
-    color: d.color,
-  }));
+  const deptData = departments.map((d: any) => {
+    const deptTasks = tasks.filter((t: any) => t.department_id === d.id);
+    const deptCompleted = deptTasks.filter((t: any) => t.status === 'completed').length;
+    return {
+      name: d.name,
+      tasks: deptTasks.length,
+      completed: deptCompleted,
+      rate: deptTasks.length > 0 ? Math.round((deptCompleted / deptTasks.length) * 100) : 0,
+      color: d.color,
+    };
+  });
 
   const memberWorkload = profiles
     .filter((p: any) => p.user_roles?.some?.((r: any) => r.role === 'member') || true)
@@ -189,6 +195,48 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Department Performance Table */}
+      <Card className="border-border/50">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">Department Performance</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {deptData.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b text-muted-foreground text-left">
+                    <th className="pb-2 font-medium">Department</th>
+                    <th className="pb-2 font-medium text-center">Total</th>
+                    <th className="pb-2 font-medium text-center">Completed</th>
+                    <th className="pb-2 font-medium text-center">Completion Rate</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {deptData.map((d: any) => (
+                    <tr key={d.name} className="border-b border-border/30">
+                      <td className="py-2 flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
+                        {d.name}
+                      </td>
+                      <td className="py-2 text-center">{d.tasks}</td>
+                      <td className="py-2 text-center">{d.completed}</td>
+                      <td className="py-2 text-center">
+                        <span className={d.rate >= 75 ? 'text-success' : d.rate >= 40 ? 'text-warning' : 'text-destructive'}>
+                          {d.rate}%
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="text-muted-foreground text-sm py-4 text-center">No departments yet</p>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Recent Activity */}
       <Card className="border-border/50">
