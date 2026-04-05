@@ -38,6 +38,68 @@ export type Database = {
         }
         Relationships: []
       }
+      leave_requests: {
+        Row: {
+          created_at: string
+          id: string
+          reason: string
+          status: Database["public"]["Enums"]["leave_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reason: string
+          status?: Database["public"]["Enums"]["leave_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reason?: string
+          status?: Database["public"]["Enums"]["leave_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          created_at: string
+          id: string
+          message_text: string
+          receiver_id: string
+          sender_id: string
+          task_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_text: string
+          receiver_id: string
+          sender_id: string
+          task_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_text?: string
+          receiver_id?: string
+          sender_id?: string
+          task_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string
@@ -46,6 +108,7 @@ export type Database = {
           read: boolean
           task_id: string | null
           title: string
+          type: Database["public"]["Enums"]["notification_type"]
           user_id: string
         }
         Insert: {
@@ -55,6 +118,7 @@ export type Database = {
           read?: boolean
           task_id?: string | null
           title: string
+          type?: Database["public"]["Enums"]["notification_type"]
           user_id: string
         }
         Update: {
@@ -64,6 +128,7 @@ export type Database = {
           read?: boolean
           task_id?: string | null
           title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
           user_id?: string
         }
         Relationships: [
@@ -152,6 +217,7 @@ export type Database = {
           description: string | null
           due_date: string | null
           id: string
+          patient_name: string | null
           priority: Database["public"]["Enums"]["task_priority"]
           status: Database["public"]["Enums"]["task_status"]
           title: string
@@ -165,6 +231,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          patient_name?: string | null
           priority?: Database["public"]["Enums"]["task_priority"]
           status?: Database["public"]["Enums"]["task_status"]
           title: string
@@ -178,6 +245,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          patient_name?: string | null
           priority?: Database["public"]["Enums"]["task_priority"]
           status?: Database["public"]["Enums"]["task_status"]
           title?: string
@@ -225,8 +293,10 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "member"
-      task_priority: "urgent" | "high" | "normal" | "low"
+      app_role: "admin" | "member" | "doctor" | "nurse"
+      leave_status: "pending" | "approved" | "rejected"
+      notification_type: "task" | "leave" | "chat"
+      task_priority: "urgent" | "high" | "normal" | "low" | "medium"
       task_status: "pending" | "in_progress" | "completed"
     }
     CompositeTypes: {
@@ -355,8 +425,10 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "member"],
-      task_priority: ["urgent", "high", "normal", "low"],
+      app_role: ["admin", "member", "doctor", "nurse"],
+      leave_status: ["pending", "approved", "rejected"],
+      notification_type: ["task", "leave", "chat"],
+      task_priority: ["urgent", "high", "normal", "low", "medium"],
       task_status: ["pending", "in_progress", "completed"],
     },
   },
